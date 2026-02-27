@@ -1,5 +1,6 @@
 services:
   romvault:
+    build: .
     image: laromicas/romvault
     platform: linux/amd64
     container_name: romvault
