@@ -67,7 +67,7 @@ build_image() {
     local script_dir
     script_dir="$(cd "$(dirname "$0")" && pwd)"
     echo "Building Docker image $IMAGE_NAME ..."
-    docker build -t "$IMAGE_NAME" "$script_dir"
+    docker build --platform linux/amd64 -t "$IMAGE_NAME" "$script_dir"
     echo "Image built successfully."
 }
 
