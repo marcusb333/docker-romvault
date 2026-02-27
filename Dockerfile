@@ -1,13 +1,7 @@
 #
 # ROMVault Dockerfile
 #
-# https://github.com/laromicas/docker-romvault
-#
-# NOTES:
-#   - We are using Mono.
-#   - Only 64-bits x86_64 supported right now, but
-#     maybe later if there is demand I will try
-#     to add ARM support.
+# https://github.com/marcusb333/docker-romvault
 #
 ARG DOCKER_IMAGE_VERSION=1.0.3-3.7.4
 
@@ -31,6 +25,7 @@ RUN \
         $FILTER) \
         && \
     echo "ROMVAULT_DOWNLOAD=${ROMVAULT_DOWNLOAD}" && \
+    test -n "$ROMVAULT_DOWNLOAD" || { echo "ERROR: Could not find ROMVault download link"; exit 1; } && \
     # Document Versions
     echo "romvault" $(basename ${ROMVAULT_DOWNLOAD} .zip | cut -d "V" -f 3) >> /VERSIONS && \
     # Download RomVault
@@ -54,15 +49,26 @@ RUN set -x && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
     apt-add-repository 'deb https://download.mono-project.com/repo/ubuntu stable-focal main' && \
     apt-get update && \
-    apt-get install -y --no-install-recommends \
-        ca-certificates \
-        mono-runtime \
-        libmono-system-servicemodel4.0a-cil \
-        libgtk2.0-0 \
-        gtk2-engines-pixbuf \
-        mono-complete \
-        xterm \
-        && \
+    ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+        apt-get install -y --no-install-recommends \
+            ca-certificates \
+            mono-runtime \
+            libmono-system-servicemodel4.0a-cil \
+            libgtk2.0-0 \
+            gtk2-engines-pixbuf \
+            mono-complete \
+            xterm; \
+    else \
+        apt-get install -y --no-install-recommends \
+            ca-certificates \
+            mono-runtime \
+            mono-mcs \
+            libmono-system-servicemodel4.0a-cil \
+            libgtk2.0-0 \
+            gtk2-engines-pixbuf \
+            xterm; \
+    fi && \
     # Clean up
     # apt-get remove -y \
     #     curl \

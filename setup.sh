@@ -4,7 +4,7 @@ set -euo pipefail
 # Setup script for docker-romvault
 # Builds the Docker image locally and runs the container
 
-IMAGE_NAME="laromicas/romvault"
+IMAGE_NAME="${IMAGE_NAME:-romvault}"
 CONTAINER_NAME="romvault"
 ROMVAULT_DIR="${ROMVAULT_DIR:-$HOME/ROMVault}"
 HOST_PORT="${HOST_PORT:-5800}"
@@ -44,15 +44,6 @@ check_docker() {
     fi
 }
 
-check_romvault_zip() {
-    local script_dir
-    script_dir="$(cd "$(dirname "$0")" && pwd)"
-    if ! ls "$script_dir"/ROMVault*.zip &>/dev/null; then
-        echo "Error: No ROMVault*.zip file found in $script_dir"
-        echo "Download ROMVault from https://www.romvault.com and place the zip file in this directory."
-        exit 1
-    fi
-}
 
 create_dirs() {
     echo "Creating directories under $ROMVAULT_DIR ..."
@@ -102,12 +93,10 @@ run_container() {
 case "${1:-}" in
     build)
         check_docker
-        check_romvault_zip
         build_image
         ;;
     run)
         check_docker
-        check_romvault_zip
         create_dirs
         build_image
         run_container

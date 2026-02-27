@@ -1,7 +1,7 @@
 services:
   romvault:
-    image: laromicas/romvault
-    platform: linux/amd64
+    build: .
+    image: romvault
     container_name: romvault
     ports:
       - "5800:5800"
