@@ -31,6 +31,8 @@ This image is based on [baseimage_gui](https://hub.docker.com/r/jlesage/baseimag
       * [Changing Parameters of a Running Container](#changing-parameters-of-a-running-container)
       * [Bugs & Known Issues](#bugs-&-known-issues)
    * [Docker Compose File](#docker-compose-file)
+      * [Using the pre-built image (x86_64)](#using-the-pre-built-image-x86_64)
+      * [Local Build (ARM64 / Mac)](#local-build-arm64--mac)
    * [Docker Image Versioning](#docker-image-versioning)
    * [Docker Image Update](#docker-image-update)
       * [Synology](#synology)
@@ -257,8 +259,16 @@ the `/config` folder remains the same).
 Here is an example of a `docker-compose.yml` file that can be used with
 [Docker Compose](https://docs.docker.com/compose/overview/).
 
+**ARM64 / Apple Silicon (Mac) users:** The pre-built Docker Hub image is x86_64
+only. If you are running on an ARM64 platform (e.g., Apple Silicon Macs, Raspberry
+Pi 4/5, or ARM-based cloud instances), you should use Docker Compose with a local
+build so the image is compiled natively for your architecture. See the
+[Local Build (ARM64 / Mac)](#local-build-arm64--mac) section below.
+
 Make sure to adjust according to your needs.  Note that only mandatory network
 ports are part of the example.
+
+### Using the pre-built image (x86_64)
 
 ```yaml
 version: '3'
@@ -273,6 +283,45 @@ services:
       - "/home/user/ROMVault/RomRoot:/config/RomRoot:rw"
       - "/home/user/ROMVault/ToSort:/config/ToSort:rw"
 ```
+
+### Local Build (ARM64 / Mac)
+
+To run on ARM64 or Apple Silicon, use `build: .` to build the image locally
+from the Dockerfile. The Dockerfile automatically detects the target architecture
+and installs the appropriate packages.
+
+On ARM64/Mac, Mono runs in interpreter mode, so you must also set
+`MONO_ENV_OPTIONS=--interpreter` for ROMVault to work correctly.
+
+```yaml
+services:
+  romvault:
+    build: .
+    image: romvault
+    ports:
+      - "5800:5800"
+    environment:
+      - USER_ID=501
+      - GROUP_ID=20
+      - TZ=America/New_York
+      - MONO_ENV_OPTIONS=--interpreter
+    volumes:
+      - ~/ROMVault/config:/config:rw
+      - ~/ROMVault/DatRoot:/config/DatRoot:rw
+      - ~/ROMVault/RomRoot:/config/RomRoot:rw
+      - ~/ROMVault/ToSort:/config/ToSort:rw
+    restart: unless-stopped
+```
+
+Then build and start with:
+
+```shell
+docker compose up -d --build
+```
+
+**Note:** The initial build may take several minutes as it compiles Mono and
+other dependencies for your architecture. Subsequent starts will use the cached
+image.
 
 ## Docker Image Versioning
 
