@@ -22,6 +22,7 @@ This image is based on [baseimage_gui](https://hub.docker.com/r/jlesage/baseimag
 ## Table of Content
 
    * [Quick Start](#quick-start)
+   * [Setup Script](#setup-script)
    * [Usage](#usage)
       * [Environment Variables](#environment-variables)
          * [Deployment Considerations](#deployment-considerations)
@@ -68,6 +69,46 @@ Where:
   - `/home/user/ROMVault`: This is where the dats and roms files are stored.
 
 Browse to `http://your-host-ip:5800` to access the ROMVault GUI.
+
+## Setup Script
+
+A `setup.sh` script is provided for building and running the Docker image locally. Before using it, download the ROMVault zip from [romvault.com](https://www.romvault.com) and place it in the project directory (e.g. `ROMVault3.7.4.zip`).
+
+```shell
+./setup.sh run
+```
+
+This will create the data directories under `~/ROMVault`, build the Docker image, and start the container. The web UI will be available at `http://localhost:5800`.
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `./setup.sh run` | Create directories, build the image, and start the container |
+| `./setup.sh build` | Build the Docker image only |
+| `./setup.sh start` | Start an existing stopped container |
+| `./setup.sh stop` | Stop the running container |
+| `./setup.sh restart` | Restart the container |
+| `./setup.sh status` | Show container status |
+| `./setup.sh logs` | Tail container logs |
+| `./setup.sh clean` | Stop and remove the container and image |
+
+### Configuration
+
+The script can be customized with environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ROMVAULT_DIR` | Base directory for ROMVault data | `~/ROMVault` |
+| `HOST_PORT` | Port to expose the web UI on | `5800` |
+| `USER_ID` | User ID for file ownership | Current user |
+| `GROUP_ID` | Group ID for file ownership | Current group |
+| `TZ` | Timezone | `America/New_York` |
+
+Example:
+```shell
+ROMVAULT_DIR=/data/romvault HOST_PORT=8080 ./setup.sh run
+```
 
 ## Usage
 
