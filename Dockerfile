@@ -20,42 +20,23 @@ FROM alpine:3.17 AS rv
 ARG ROMVAULT_URL
 ARG ROMVAULT_VERSION
 RUN \
-#     apk --no-cache add curl && \
-#     if [ "$ROMVAULT_VERSION" = "latest" ]; then FILTER='head -1'; else FILTER="grep $ROMVAULT_VERSION"; fi && \
-#     # Get latest version of ROMVault & RVCmd
-#     ROMVAULT_DOWNLOAD=$(curl ${ROMVAULT_URL} | \
-#         sed -n 's/.*href="\([^"]*\).*/\1/p' | \
-#         grep -i download | \
-#         grep -i romvault | \
-#         sort -r -f -u | \
-#         $FILTER) \
-#         && \
-#     RVCMD_DOWNLOAD=$(curl ${ROMVAULT_URL} | \
-#         sed -n 's/.*href="\([^"]*\).*/\1/p' | \
-#         grep -i download | \
-#         grep -i rvcmd | \
-#         grep -i linux | \
-#         sort -r -f -u | \
-#         head -1) \
-#         && \
-#     echo ROMVAULT_DOWNLOAD=${ROMVAULT_DOWNLOAD} && \
-#     echo RVCMD_DOWNLOAD=${RVCMD_DOWNLOAD} && \
-#     # Document Versions
-#     echo "romvault" $(basename ${ROMVAULT_DOWNLOAD} .zip | cut -d "V" -f 3) >> /VERSIONS && \
-#     echo "rvcmd" $(basename ${RVCMD_DOWNLOAD} .zip | cut -d "V" -f 3 | cut -d "-" -f 1) >> /VERSIONS && \
-#     # Download RomVault
-#     mkdir -p /defaults/ && mkdir -p /opt/romvault/ && \
-#     curl --output /defaults/romvault.zip "${ROMVAULT_URL}/${ROMVAULT_DOWNLOAD}" && \
-#     curl --output /defaults/rvcmd.zip "${ROMVAULT_URL}/${RVCMD_DOWNLOAD}" && \
-#     unzip /defaults/romvault.zip -d /opt/romvault/ && \
-#     unzip /defaults/rvcmd.zip -d /opt/romvault/ && \
-    echo "3.7.4"
-
-# Uses local files instead of downloading
-COPY ROMVault3.7.4.zip /defaults/romvault.zip
-RUN \
-    unzip /defaults/romvault.zip -d /opt/romvault/ -o && \
-    echo "romvault 3.7.4" >> /VERSIONS
+    apk --no-cache add curl && \
+    if [ "$ROMVAULT_VERSION" = "latest" ]; then FILTER='head -1'; else FILTER="grep $ROMVAULT_VERSION"; fi && \
+    # Get latest version of ROMVault
+    ROMVAULT_DOWNLOAD=$(curl -sL ${ROMVAULT_URL} | \
+        sed -n 's/.*href="\([^"]*\).*/\1/p' | \
+        grep -i download | \
+        grep -i romvault | \
+        sort -r -f -u | \
+        $FILTER) \
+        && \
+    echo "ROMVAULT_DOWNLOAD=${ROMVAULT_DOWNLOAD}" && \
+    # Document Versions
+    echo "romvault" $(basename ${ROMVAULT_DOWNLOAD} .zip | cut -d "V" -f 3) >> /VERSIONS && \
+    # Download RomVault
+    mkdir -p /defaults/ && mkdir -p /opt/romvault/ && \
+    curl -sL --output /defaults/romvault.zip "${ROMVAULT_URL}/${ROMVAULT_DOWNLOAD}" && \
+    unzip /defaults/romvault.zip -d /opt/romvault/ -o
 
 # Pull base image.
 FROM jlesage/baseimage-gui:ubuntu-20.04-v4
